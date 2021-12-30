@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import RenderLogs from "./RenderLogs";
 import { logSubject, logObservable } from "../configs/subject";
+import * as packageJSON from "../../package.json";
 
 const RenderDebuggerPanel = (bottom: boolean) => {
   const [filter, setFilter] = useState({ flagr: "", index: null, log: [] });
   const [logger, setLogger] = useState(logSubject.getValue());
   const [inputText, setInputText] = useState("");
 
-  useEffect(() => {
+  useEffect(() => { 
     logObservable.subscribe((logs: unknown[]) => {
       if (filter.flagr === "") {
         setLogger(logs);
@@ -65,8 +66,8 @@ const RenderDebuggerPanel = (bottom: boolean) => {
               fontSize: "20px",
               fontWeight: "600",
             }}
-          >
-            React Logger
+          > 
+            React Logger <span style={{fontSize: "10px"}}>(v{packageJSON.version})</span>
           </span>
           <div
             style={{

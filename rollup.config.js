@@ -1,17 +1,18 @@
 import typescript from "rollup-plugin-typescript2";
-import packages from "./package.json";
+import json from "@rollup/plugin-json";
+import packageJSON from "./package.json";
 
 export default {
   input: "src/index.tsx",
   output: [
     {
-      file: packages.main,
+      file: packageJSON.main,
       format: "cjs",
       exports: "named",
       sourcemap: true,
       strict: false,
     },
   ],
-  plugins: [typescript()],
+  plugins: [typescript(), json()],
   external: ["react", "react-dom"],
 };
