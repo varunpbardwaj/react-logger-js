@@ -3,4 +3,6 @@ import { BehaviorSubject } from "rxjs";
 const logSubject = new BehaviorSubject<any[]>([]);
 const logObservable = logSubject.asObservable();
 
-export { logSubject, logObservable };
+const devSubject = new BehaviorSubject<any[]>([]);
+
+export { logSubject, logObservable, devSubject };

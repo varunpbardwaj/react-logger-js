@@ -1,6 +1,6 @@
 {
   "name": "react-logger-js",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A ReactJS library to log the data.",
   "main": "dist/index.js",
   "files": [

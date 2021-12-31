@@ -1,5 +1,5 @@
 export default interface LogProvider {
-  devURL: string;
+  devURL: string[];
   x: number;
   y: number;
 }

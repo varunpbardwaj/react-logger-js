@@ -231,7 +231,6 @@ const RenderDebuggerPanel = (bottom: boolean) => {
           width: "60%",
           minWidth: "500px",
           maxHeight: "100%",
-          borderRight: "2px solid #242D38",
           borderTopRightRadius: "30px",
           overflowY: "hidden",
         }}
