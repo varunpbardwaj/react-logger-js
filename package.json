@@ -1,6 +1,6 @@
 {
   "name": "react-logger-js",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A ReactJS library to log the data.",
   "main": "dist/index.js",
   "files": [
@@ -11,6 +11,14 @@
     "type": "git",
     "url": "https://github.com/varunpbardwaj/react-logger-js"
   },
+  "keywords": [ 
+    "react", 
+    "logger", 
+    "react-logger",
+    "react-logger-js",
+    "logs",
+    "log"
+  ],
   "scripts": {
     "build": "rollup -c",
     "start": "rollup -c -w",
