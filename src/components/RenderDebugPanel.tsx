@@ -1,25 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import RenderLogs from "./RenderLogs";
 import { logSubject, logObservable } from "../configs/subject";
 import * as packageJSON from "../../package.json";
 
 const RenderDebuggerPanel = (bottom: boolean) => {
-  const [filter, setFilter] = useState({ flagr: "", index: null, log: [] });
+  const [filter, setFilter] = useState({ flagr: "", index: null, log: []});
   const [logger, setLogger] = useState(logSubject.getValue());
-  const [inputText, setInputText] = useState("");
+  const [isTree, setIsTree] = useState(false);
+  const inputRef = useRef(null);
 
-  useEffect(() => { 
+  useEffect(() => {
     logObservable.subscribe((logs: unknown[]) => {
-      if (filter.flagr === "") {
+      if (inputRef.current.value === "") {
         setLogger(logs);
       } else {
         const getLogs = logs.filter((item: { logger_flagr: string }) =>
-          item.logger_flagr.toLowerCase().includes(filter.flagr.toLowerCase())
+          item.logger_flagr.toLowerCase().includes(inputRef.current.value.toLowerCase())
         );
         setLogger(getLogs);
       }
     });
   }, []);
+
   return (
     <div
       style={{
@@ -66,8 +68,9 @@ const RenderDebuggerPanel = (bottom: boolean) => {
               fontSize: "20px",
               fontWeight: "600",
             }}
-          > 
-            React Logger <span style={{fontSize: "10px"}}>(v{packageJSON.version})</span>
+          >
+            React Logger{" "}
+            <span style={{ fontSize: "10px" }}>(v{packageJSON.version})</span>
           </span>
           <div
             style={{
@@ -88,6 +91,9 @@ const RenderDebuggerPanel = (bottom: boolean) => {
               }}
               onClick={() => {
                 logSubject.next([]);
+                setFilter({ ...filter, flagr: "", index: null, log: [] });
+                setLogger(logSubject.getValue());
+                inputRef.current.value = "";
               }}
             >
               reset
@@ -130,15 +136,16 @@ const RenderDebuggerPanel = (bottom: boolean) => {
                 border: "none",
                 textAlign: "right",
                 fontSize: "18px",
-                marginRight: "30px",
                 outline: "none",
               }}
+              ref={inputRef}
               placeholder="filter logs..."
-              onKeyPress={(event) => {
-                if (
-                  event.key === "Enter" &&
-                  (event.target as HTMLInputElement).value.trim() !== ""
-                ) {
+              onChange={(event) => {
+                if(event.target.value.trim() === "") {
+                  setFilter({ ...filter, flagr: "", index: null, log: [] });
+                  setLogger(logSubject.getValue());
+                  inputRef.current.value = "";
+                } else {
                   setFilter({
                     ...filter,
                     flagr: (event.target as HTMLInputElement).value,
@@ -157,35 +164,14 @@ const RenderDebuggerPanel = (bottom: boolean) => {
                   setLogger(logs);
                 }
               }}
-              onChange={(event) => {
-                setInputText(event.target.value);
-              }}
-              value={inputText}
             />
-            <div
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#F3B106",
-                borderRadius: "4px",
-                fontWeight: 600,
-                fontSize: "16px",
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                setFilter({ ...filter, flagr: "", index: null, log: [] });
-                setLogger(logSubject.getValue());
-                setInputText("");
-              }}
-            >
-              clear
-            </div>
           </div>
         </div>
         <div style={{ height: "calc(100% - 120px)", overflowY: "auto" }}>
           {logger.length > 0 &&
             logger.map((item: { logger_flagr: string }, index: number) => (
               <div
-                key={index}
+                key={`logger-${index}`}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -256,52 +242,99 @@ const RenderDebuggerPanel = (bottom: boolean) => {
             Data Explorer
           </span>
         </div>
+        <div style={{ display: "flex" }}>
+          <div
+            style={{
+              width: "100px",
+              padding: "20px 20px",
+              fontWeight: 600,
+              fontSize: "16px",
+              cursor: "pointer",
+              color: "white",
+              borderBottom: isTree ? "1px solid #FC0E63" : "1px solid #142335",
+              textAlign: "center",
+              backgroundColor: isTree ? "rgb(251, 15, 99, 0.15)" : "",
+            }}
+            onClick={() => {
+              setIsTree(true);
+            }}
+          >
+            tree
+          </div>
+          <div
+            style={{
+              width: "100px",
+              padding: "20px 20px",
+              fontWeight: 600,
+              fontSize: "16px",
+              cursor: "pointer",
+              color: "white",
+              borderBottom: !isTree ? "1px solid #FC0E63" : "1px solid #142335",
+              textAlign: "center",
+              backgroundColor: !isTree ? "rgb(251, 15, 99, 0.15)" : "",
+            }}
+            onClick={() => {
+              setIsTree(false);
+            }}
+          >
+            raw
+          </div>
+        </div>
         <div
           style={{
-            maxHeight: "calc(100% - 60px)",
+            maxHeight: "calc(100% - 120px)",
             textAlign: "left",
             marginBottom: "100px",
             overflowY: "auto",
           }}
         >
           {filter.index !== null ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                margin: "20px",
-              }}
-            >
-              <div style={{ color: "#657f9b" }}>
-                <span
-                  onClick={() => {
-                    if (document.getElementById("parent").innerText === "▲") {
-                      document.getElementById("parent").innerText = "▼";
-                      document.getElementById("child").style.display = "block";
-                    } else {
-                      document.getElementById("parent").innerText = "▲";
-                      document.getElementById("child").style.display = "none";
-                    }
-                  }}
-                  style={{ cursor: "pointer" }}
-                >
-                  <span id="parent">▲</span>{" "}
-                  <span style={{ color: "#FB0F63" }}>
-                    {filter.flagr} ({filter.index})
-                  </span>
-                </span>
-              </div>
+            isTree ? (
               <div
-                id="child"
                 style={{
-                  display: "none",
-                  color: "white",
-                  marginLeft: "20px"
+                  display: "flex",
+                  flexDirection: "column",
+                  margin: "20px",
                 }}
               >
-                {RenderLogs(filter.log, false)}
+                <div style={{ color: "#657f9b" }}>
+                  <span
+                    onClick={() => {
+                      if (document.getElementById("parent").innerText === "▲") {
+                        document.getElementById("parent").innerText = "▼";
+                        document.getElementById("child").style.display =
+                          "block";
+                      } else {
+                        document.getElementById("parent").innerText = "▲";
+                        document.getElementById("child").style.display = "none";
+                      }
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <span id="parent">▲</span>{" "}
+                    <span style={{ color: "#FB0F63" }}>
+                      {filter.flagr} ({filter.index})
+                    </span>
+                  </span>
+                </div>
+                <div
+                  id="child"
+                  style={{
+                    display: "none",
+                    color: "white",
+                    marginLeft: "20px",
+                  }}
+                >
+                  {RenderLogs(filter.log, false)}
+                </div>
               </div>
-            </div>
+            ) : (
+              <pre style={{ color: "#fcf2db", marginLeft: "20px" }}>
+                <code style={{ wordBreak: "break-all" }}>
+                  {JSON.stringify(filter.log[0].data, undefined, 2)}
+                </code>
+              </pre>
+            )
           ) : (
             <p
               style={{

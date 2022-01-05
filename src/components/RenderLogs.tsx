@@ -3,7 +3,7 @@ import idGenerator from "../configs/idGenerator";
 
 export default function RenderLogs(data: {}, isChild: boolean) {
   const arr = Object.keys(data).map((key) => {
-    if (typeof data[key] === "object") {
+    if (data[key] && typeof data[key] === "object") {
       const id = idGenerator(10);
       return (
         <div
@@ -34,7 +34,11 @@ export default function RenderLogs(data: {}, isChild: boolean) {
           </div>
           <div
             id={`child-${id}`}
-            style={{ display: "none", margin: "0px 0px 0px 20px", color: "white" }}
+            style={{
+              display: "none",
+              margin: "0px 0px 0px 20px",
+              color: "white",
+            }}
           >
             {RenderLogs(data[key], true)}
           </div>
@@ -42,12 +46,12 @@ export default function RenderLogs(data: {}, isChild: boolean) {
       );
     } else {
       return (
-        <div style={{ marginTop: "10px" }}>
+        <div key={key} style={{ marginTop: "10px" }}>
           {key !== "logger_flagr" && (
             <div style={{ display: "flex" }}>
               <div style={{ color: "#ffb5cc" }}>{key}: </div>
               <div
-                title={data[key]}
+                title={data[key] ? data[key].toString() : "null"}
                 style={{
                   color: "#ffeab5",
                   whiteSpace: "nowrap",
@@ -57,7 +61,7 @@ export default function RenderLogs(data: {}, isChild: boolean) {
                   cursor: "pointer",
                 }}
               >
-                {data[key]}
+                {data[key] ? data[key].toString() : "null"}
               </div>
             </div>
           )}
